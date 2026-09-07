@@ -9,6 +9,7 @@
 원본은 5184×3456 인데 지느러미는 그 안의 한 뼘이다. 사진째 보면 정작 볼 것이
 안 보이고 내려보내는 값만 든다. 그래서 **윤곽의 바깥틀에 여백을 둘러 잘라
 낸다** — 형제 저장소가 상자마다 640 크롭을 두는 것과 같은 까닭이다.
+**자르는 규칙은 `ndd/crop.py` 하나에 있다** — 재는 명령과 같은 틀을 써야 한다.
 
 ## 윤곽은 서버가 안 그린다
 
@@ -23,9 +24,8 @@ from django.conf import settings
 from django.http import FileResponse, Http404
 from django.shortcuts import render
 
-from ndd import labels
+from ndd import crop, labels
 
-PAD = 0.15                      # 바깥틀 대비 여백. 형제 저장소의 `CHIP_PAD` 와 같은 값
 _CACHE = {}
 
 
@@ -50,17 +50,9 @@ def _regions(kind):
     return _CACHE[kind]
 
 
-def _box(r, pad=PAD):
-    """윤곽의 바깥틀 + 여백 → 자를 틀 (x0, y0, x1, y1). 정수다."""
-    x0, x1 = min(r.xs), max(r.xs)
-    y0, y1 = min(r.ys), max(r.ys)
-    m = max(x1 - x0, y1 - y0) * pad
-    return (int(x0 - m), int(y0 - m), int(x1 + m), int(y1 + m))
-
-
 def _card(key, r):
     """격자 한 칸. **좌표는 자를 틀 기준 0~1** 이라 크기에 안 매인다."""
-    x0, y0, x1, y1 = _box(r)
+    x0, y0, x1, y1 = crop.view_box(r)
     w = max(1, x1 - x0), max(1, y1 - y0)
     return {
         "key": key, "image": r.image, "ind": r.ind, "species": r.species,
@@ -69,18 +61,8 @@ def _card(key, r):
                         for x, y in zip(r.xs, r.ys)),
         # **닫히지 않은 것을 표로 단다.** 채울 때 없는 직선을 지어 넣게 되는
         # 것들이라(ABOVE 의 3%), 성적에서 가를 줄이기도 하다
-        "gap": round(_gap(r), 3),
+        "gap": round(crop.gap(r), 3),
     }
-
-
-def _gap(r):
-    """첫점과 끝점 사이 간격 / 윤곽 크기. 0 에 가까우면 닫힌 것이다."""
-    if len(r.xs) < 2:
-        return 0.0
-    dx = r.xs[0] - r.xs[-1]
-    dy = r.ys[0] - r.ys[-1]
-    size = max(max(r.xs) - min(r.xs), max(r.ys) - min(r.ys)) or 1
-    return (dx * dx + dy * dy) ** 0.5 / size
 
 
 def index(request):
@@ -99,7 +81,7 @@ def index(request):
             continue
         if only == "noid" and r.labelled:
             continue
-        if only == "open" and _gap(r) <= 0.1:
+        if only == "open" and crop.gap(r) <= 0.1:
             continue
         if species and r.species != species:
             continue
@@ -114,7 +96,7 @@ def index(request):
         "n_pages": max(1, -(-n_all // per)),
         "cards": [_card(k, r) for k, r in shown],
         "n_labelled": sum(1 for _, r in sel if r.labelled),
-        "n_open": sum(1 for _, r in sel if _gap(r) > 0.1),
+        "n_open": sum(1 for _, r in sel if crop.gap(r) > 0.1),
         "inds": sorted({r.ind for _, r in regs if r.labelled}),
     })
 
@@ -141,7 +123,7 @@ def individual(request, ind):
 
 
 def image(request, kind, key):
-    """그 영역만 잘라 낸 그림. 한 번 만들어 `out/crops/` 에 둔다."""
+    """그 영역만 잘라 낸 그림. 한 번 만들어 `out/thumbs/` 에 둔다."""
     if kind not in labels.SETS:
         raise Http404
     _, by_key = _regions(kind)
@@ -156,12 +138,11 @@ def image(request, kind, key):
         if not src.is_file():
             raise Http404(f"{src} 가 없다")
         im = Image.open(src)
-        x0, y0, x1, y1 = _box(r)
-        # 틀이 사진 밖으로 나가면 잘라 준다 — 나간 채로 자르면 검은 띠가 생기고
-        # 그것이 0~1 좌표와 어긋난다
-        x0, y0 = max(0, x0), max(0, y0)
-        x1, y1 = min(im.width, x1), min(im.height, y1)
-        im = im.crop((x0, y0, x1, y1))
+        # **틀을 사진 안으로 줄이지 않는다.** 줄이면 그림이 틀보다 작아지는데
+        # 좌표는 틀 기준 0~1 이라 그만큼 어긋난다 (영역의 10%가 틀이 사진 밖으로
+        # 나간다 — 지느러미가 가장자리에 걸린 것들이다). 나간 자리는 PIL 이
+        # 검은 띠로 채우고, **띠째 내려보내야 그림과 좌표가 같은 틀 위에 선다.**
+        im = im.crop(crop.view_box(r))
         im.thumbnail((w, w), Image.LANCZOS)
         tgt.parent.mkdir(parents=True, exist_ok=True)
         buf = io.BytesIO()

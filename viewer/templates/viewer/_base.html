@@ -15,7 +15,10 @@
   select, button, input { font:inherit; font-size:13px; background:var(--panel);
     color:var(--ink); border:1px solid var(--line); border-radius:5px;
     padding:3px 9px }
-  #grid { display:grid; gap:9px; padding:12px;
+  /* **칸을 줄 높이에 맞춰 늘이지 않는다**(`align-items:start`). 늘이면 그림은
+     제 높이로 위에 남는데 SVG 는 칸을 다 덮어, 윤곽이 사진 아래 빈 곳에
+     그려진다. 틀 가로/세로가 0.56~3.27 로 널뛰어 한 줄 안에서 늘 어긋난다 */
+  #grid { display:grid; gap:9px; padding:12px; align-items:start;
           grid-template-columns:repeat(auto-fill, minmax(var(--card), 1fr)) }
   .fin { position:relative; background:#0d1219; border:1px solid var(--line);
          border-radius:6px; overflow:hidden }

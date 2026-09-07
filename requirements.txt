@@ -1,0 +1,13 @@
+# 보는 화면과 자료 읽기. **GPU 는 여기 없다.**
+#
+#   python3 -m venv ~/venv/ndd20
+#   ~/venv/ndd20/bin/pip install -r requirements.txt
+#
+# 형제 저장소(`dolfinserver2`)의 것을 본떴으되 **검토 UI 쪽만** 가져왔다.
+# 저쪽 venv 를 빌려 쓰던 것을 끊는다 — 읽기만 해도 저쪽 판올림에 이쪽이
+# 조용히 딸려 가기 때문이다 (`CLAUDE.md` 의 *간섭을 피한다*).
+Django==5.2
+pillow
+
+# numpy · opencv 는 **아직 안 적는다.** 폴리라인을 채워 마스크를 만들 때
+# 들어온다 — 그때 무엇 때문에 들어왔는지와 함께 적는다
