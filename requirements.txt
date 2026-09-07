@@ -9,5 +9,6 @@
 Django==5.2
 pillow
 
-# numpy · opencv 는 **아직 안 적는다.** 폴리라인을 채워 마스크를 만들 때
-# 들어온다 — 그때 무엇 때문에 들어왔는지와 함께 적는다
+# numpy · opencv · torch · ultralytics 는 **`fins` 만** 든다.
+# `requirements-fins.txt` 로 갈라 뒀다 — GPU 없는 기계가 하는 일(보는 것 ·
+# 세는 것)에는 필요가 없고, 거기에 torch 를 깔면 2.5GB 가 쓸데없이 든다.

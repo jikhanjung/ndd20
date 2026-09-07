@@ -1,0 +1,18 @@
+# **`fins` 만** 이것이 든다. 화면과 `look` 은 `requirements.txt` 로 선다.
+#
+#   ~/venv/ndd20/bin/pip install -r requirements.txt -r requirements-fins.txt
+#
+# 형제 저장소는 이것을 `requirements-gpu.txt` 라 부르지만 **그 이름을 안
+# 쓴다.** `fins` 는 CPU 에서도 돈다(4코어 0.97초/장 · 2080ti 0.22초/장).
+# GPU 라고 적어 두면 GPU 없는 기계에서 못 돌리는 줄 안다 — 실제로 갈리는 것은
+# 기계가 아니라 **하는 일**이다.
+#
+# **가르는 까닭.** m710q 처럼 GPU 없는 기계가 하는 일은 보는 것과 세는 것이고,
+# 거기에 torch 를 깔면 2.5GB 가 쓸데없이 든다.
+torch
+torchvision
+# YOLO 로 seg-v3-s · pose-v1 을 연다
+ultralytics
+# `ndd/crop.py:mask_to_polygon` 이 마스크에서 윤곽을 딴다. ultralytics 가
+# 함께 끌어오지만 **우리가 직접 부르므로** 여기 적는다
+opencv-python

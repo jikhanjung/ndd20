@@ -1,16 +1,31 @@
 {% extends "viewer/_base.html" %}
 {% block title %}NDD20 — {{ kind }}{% endblock %}
 {% block head %}
-<form method="get" style="display:flex; gap:8px; align-items:center">
+<form method="get" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
   <select name="set" onchange="this.form.submit()">
     {% for s in sets %}<option value="{{ s }}" {% if s == kind %}selected{% endif %}>{{ s }}</option>{% endfor %}
   </select>
+  {% comment %}**어느 판을 보고 있는지 말한다.** 두 판을 나란히 놓고도 이름이
+  안 보이면 어느 쪽인지 못 가린다 (`ndd/results.py`){% endcomment %}
+  {% if runs %}
+  <select name="run" onchange="this.form.submit()" title="`fins` 가 떨군 판. 화면은 얹기만 한다">
+    {% for rr in runs %}<option value="{{ rr }}" {% if rr == run %}selected{% endif %}>{{ rr }}</option>{% endfor %}
+  </select>{% endif %}
   <select name="only" onchange="this.form.submit()">
     <option value="" {% if not only %}selected{% endif %}>전부</option>
     <option value="id" {% if only == "id" %}selected{% endif %}>개체 ID 있는 것</option>
     <option value="noid" {% if only == "noid" %}selected{% endif %}>없는 것</option>
     <option value="open" {% if only == "open" %}selected{% endif %}>안 닫힌 것 (틈&gt;0.1)</option>
+    {% if run %}
+    <option value="nomask" {% if only == "nomask" %}selected{% endif %}>마스크를 못 낸 것</option>
+    <option value="low" {% if only == "low" %}selected{% endif %}>담김 낮은 것 (&lt;0.9)</option>
+    {% endif %}
   </select>
+  {% if run %}
+  <select name="sort" onchange="this.form.submit()" title="나쁜 것부터 본다 — 못 낸 것 · 담김 낮은 것 차례">
+    <option value="" {% if not sort %}selected{% endif %}>자료 차례</option>
+    <option value="hold" {% if sort == "hold" %}selected{% endif %}>나쁜 것부터</option>
+  </select>{% endif %}
   {% if all_species %}
   <select name="species" onchange="this.form.submit()">
     <option value="">종 전부</option>
@@ -20,13 +35,20 @@
 </form>
 <span class="dim">영역 <b>{{ n_all }}</b> · 개체 ID <b>{{ n_labelled }}</b>
   {% if n_open %}· <span style="color:var(--warn)">안 닫힘 {{ n_open }}</span>{% endif %}
+  {% if run %}· 마스크 <b>{{ n_mask }}</b> · 밑동 <b>{{ n_base }}</b>
+    {% if n_nomask %}· <span style="color:var(--bad)">못 냄 {{ n_nomask }}</span>{% endif %}
+    {% if n_low %}· <span style="color:var(--bad)">담김&lt;0.9 {{ n_low }}</span>{% endif %}
+  {% endif %}
   · 개체 {{ inds|length }}</span>
 {% endblock %}
 {% block body %}
+{% if not runs %}<p class="dim" style="padding:0 14px">
+  잰 판이 없다 — <code>python main.py fins --pad 1.0 --out out/fins/{{ kind }}-pad1.0.jsonl</code>
+  을 먼저 돌리면 우리 마스크가 여기 얹힌다.</p>{% endif %}
 <div id="grid">{% for c in cards %}{% include "viewer/_card.html" %}{% endfor %}</div>
 <div class="pager">
-  {% if page > 1 %}<a href="?set={{ kind }}&only={{ only }}&species={{ species }}&n={{ per }}&page={{ page|add:'-1' }}">← 앞</a>{% endif %}
+  {% if page > 1 %}<a href="?set={{ kind }}&run={{ run }}&only={{ only }}&sort={{ sort }}&species={{ species }}&n={{ per }}&page={{ page|add:'-1' }}">← 앞</a>{% endif %}
   <span class="dim">{{ page }} / {{ n_pages }} 쪽</span>
-  {% if page < n_pages %}<a href="?set={{ kind }}&only={{ only }}&species={{ species }}&n={{ per }}&page={{ page|add:'1' }}">뒤 →</a>{% endif %}
+  {% if page < n_pages %}<a href="?set={{ kind }}&run={{ run }}&only={{ only }}&sort={{ sort }}&species={{ species }}&n={{ per }}&page={{ page|add:'1' }}">뒤 →</a>{% endif %}
 </div>
 {% endblock %}

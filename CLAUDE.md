@@ -112,18 +112,27 @@ Dolphin Dataset 2020) 위에서, 형제 저장소 [`dolfinserver2`](../dolfinser
 ```
 main.py            명령을 고른다 (Django 를 안 거친다)
 ndd/labels.py      **NDD20 라벨을 읽는 자리 하나.** 무엇이 "개체 ID 가 있다" 인지도 여기
+ndd/crop.py        **자르는 틀을 정하는 자리 하나.** 화면과 명령이 같은 틀을 쓴다
+ndd/results.py     **`fins` 가 떨군 판을 읽는 자리 하나.** 적는 쪽과 갈리면
+                   칸 이름이 조용히 어긋난다
 ndd/commands/      명령 하나가 한 가지 일. 도움말이 곧 문서다
   look             표본을 먼저 눈으로 본다 (세는 자리 하나)
+  fins             남의 사진에서 지느러미를 세운다. **판을 JSONL 로 떨군다**
 
 requirements.txt   django · pillow. **제 venv 를 쓴다**(`~/venv/ndd20`) —
                    형제 저장소의 것을 빌리면 저쪽 판올림에 딸려 간다
+requirements-fins.txt  torch · ultralytics · opencv. **`fins` 만** 든다 —
+                   GPU 없는 기계가 보고 세는 데는 필요가 없다
 manage.py          보는 화면만 Django 다
 nddweb/            설정·주소. **DB 도 로그인도 세션도 안 켠다**
 viewer/            격자(`/`) · 개체별(`/ind/<개체>`) · 잘라 낸 그림(`/img/...`)
                    윤곽은 서버가 안 굽는다 — 0~1 좌표를 브라우저가 SVG 로 얹는다
+                   **한 칸에 셋이 겹친다**: 남의 윤곽 · 우리 마스크 · 밑동 현.
+                   **화면은 다시 재지 않는다** — 판에 적힌 것을 얹기만 한다
 
 docs/              자료의 생김새. **세어서 확인한 것만** 적는다
-out/               잘라 낸 미리보기 캐시. 파생물이라 저장소에 안 담는다
+out/               미리보기 캐시와 돌린 판. 저장소에 안 담는다 — **기계 사이로
+                   건너갈 것은 NAS 에 둔다**(`<NAS>/DolFinID/ndd20/`)
 devlog/            지나간 것
 ```
 

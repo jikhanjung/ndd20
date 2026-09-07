@@ -3,7 +3,8 @@
 <title>{% block title %}NDD20{% endblock %}</title>
 <style>
   :root { --bg:#0b0f14; --panel:#141b23; --line:#26303c; --ink:#e6edf3;
-          --dim:#8b98a5; --ok:#4ade80; --warn:#ffd479; --card:200px }
+          --dim:#8b98a5; --ok:#4ade80; --warn:#ffd479; --bad:#f87171;
+          --mask:#38bdf8; --base:#f0abfc; --card:200px }
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink);
          font:14px/1.6 "IBM Plex Sans KR", system-ui, sans-serif }
@@ -25,28 +26,55 @@
   .fin img { display:block; width:100%; height:auto }
   .fin svg { position:absolute; inset:0; width:100%; height:100%;
              pointer-events:none }
-  .fin polyline { fill:none; stroke:var(--ok); stroke-width:1.6;
-                  vector-effect:non-scaling-stroke; opacity:.9 }
-  .fin.open polyline { stroke:var(--warn) }
+  /* **셋이 겹쳐 있고 색이 곧 출처다.** 초록은 남이 그린 것, 파랑은 우리가 낸
+     것, 분홍은 밑동. 색을 섞어 쓰면 겹쳐 놓은 뜻이 없어진다 */
+  .fin polyline.fence { fill:none; stroke:var(--ok); stroke-width:1.6;
+                        vector-effect:non-scaling-stroke; opacity:.85 }
+  .fin.open polyline.fence { stroke:var(--warn) }
+  .fin polygon.mask { fill:#38bdf826; stroke:var(--mask); stroke-width:1.7;
+                      vector-effect:non-scaling-stroke }
+  /* 담김이 낮은 것은 **칸째** 붉어야 한다 — 격자에서 눈에 걸려야 하는 것들이다 */
+  .fin.low { border-color:var(--bad) }
+  .fin.low polygon.mask { fill:#f8717133; stroke:var(--bad) }
+  .fin.nomask { border-color:#7f1d1d }
+  /* 밑동은 두 점이지만 **현으로 긋는다.** 점 두 개를 원으로 찍으면 틀 가로세로
+     비가 1이 아니라(preserveAspectRatio=none) 찌그러진 타원이 된다 */
+  .fin polyline.base { fill:none; stroke:var(--base); stroke-width:3.4;
+                       stroke-linecap:round; vector-effect:non-scaling-stroke }
+  body.no-fence .fence, body.no-mask .mask, body.no-base .base { display:none }
   .tag { position:absolute; left:4px; top:4px; z-index:2; font-size:11px;
          background:#000a; border-radius:4px; padding:1px 5px }
   .tag.id { color:var(--ok) } .tag.no { color:var(--dim) }
   .gap { position:absolute; right:4px; top:4px; z-index:2; font-size:11px;
          color:var(--warn); background:#000a; border-radius:4px; padding:1px 5px }
+  .hold { position:absolute; left:4px; bottom:4px; z-index:2; font-size:11px;
+          color:var(--mask); background:#000a; border-radius:4px; padding:1px 5px }
+  .hold.bad { color:var(--bad) }
   .pager { padding:10px 14px; display:flex; gap:8px; align-items:center }
+  .key { display:inline-flex; gap:9px; align-items:center }
+  .key i { width:11px; height:3px; border-radius:2px; display:inline-block }
 </style>
 <header>
   <h1><a href="/">NDD20</a></h1>
   {% block head %}{% endblock %}
   <span style="flex:1"></span>
-  <label class="dim">윤곽 <input type="checkbox" id="ov" checked></label>
+  <span class="key dim">
+    <label><i style="background:var(--ok)"></i>
+      <input type="checkbox" id="t-fence" checked> 남의 윤곽</label>
+    <label><i style="background:var(--mask)"></i>
+      <input type="checkbox" id="t-mask" checked> 우리 마스크</label>
+    <label><i style="background:var(--base)"></i>
+      <input type="checkbox" id="t-base" checked> 밑동</label>
+  </span>
 </header>
 {% block body %}{% endblock %}
 <script>
-// **윤곽은 브라우저가 얹는다** — 켜고 끌 수 있어야 그림과 좌표가 갈렸을 때
+// **얹은 것은 브라우저가 그린다** — 켜고 끌 수 있어야 그림과 좌표가 갈렸을 때
 // 어느 쪽이 틀렸는지 가린다 (형제 저장소의 `/edit` 과 같은 까닭).
-document.getElementById("ov").onchange = e => {
-  document.querySelectorAll(".fin svg").forEach(
-    s => s.style.display = e.target.checked ? "" : "none");
-};
+// **셋을 따로 끈다.** 겹친 채로는 우리 마스크가 어긋난 것인지 남의 윤곽이
+// 헐거운 것인지 안 갈린다 — 그것을 가리려고 겹쳐 놓은 것이다.
+for (const k of ["fence", "mask", "base"]) {
+  const el = document.getElementById("t-" + k);
+  el.onchange = () => document.body.classList.toggle("no-" + k, !el.checked);
+}
 </script>

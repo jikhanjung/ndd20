@@ -1,7 +1,17 @@
-{% comment %}격자 한 칸 — 지느러미 하나. 좌표는 자를 틀 기준 0~1 이다{% endcomment %}
-<div class="fin{% if c.gap > 0.1 %} open{% endif %}">
-  <span class="tag {% if c.labelled %}id{% else %}no{% endif %}">{% if c.labelled %}<a href="/ind/{{ c.ind }}?set={{ kind }}">{{ c.ind }}</a>{% else %}{{ c.species|default:"—" }}{% endif %}</span>
+{% comment %}격자 한 칸 — 지느러미 하나. 좌표는 자를 틀 기준 0~1 이다.
+남의 윤곽(초록) · 우리 마스크(파랑) · 밑동 현(분홍)이 **같은 틀 위에** 선다{% endcomment %}
+<div class="fin{% if c.gap > 0.1 %} open{% endif %}{% if c.low %} low{% endif %}{% if c.run and not c.got %} nomask{% endif %}">
+  <span class="tag {% if c.labelled %}id{% else %}no{% endif %}">{% if c.labelled %}<a href="/ind/{{ c.ind }}?set={{ kind }}{% if run %}&run={{ run }}{% endif %}">{{ c.ind }}</a>{% else %}{{ c.species|default:"—" }}{% endif %}</span>
   {% if c.gap > 0.1 %}<span class="gap" title="첫점과 끝점이 벌어져 있다 — 채우면 없는 직선이 들어간다">틈 {{ c.gap }}</span>{% endif %}
   <img src="/img/{{ kind }}/{{ c.key }}" loading="lazy" alt="{{ c.image }}">
-  <svg viewBox="0 0 1 1" preserveAspectRatio="none"><polyline points="{{ c.pts }}"/></svg>
+  <svg viewBox="0 0 1 1" preserveAspectRatio="none">
+    <polyline class="fence" points="{{ c.pts }}"/>
+    {% if c.mpts %}<polygon class="mask" points="{{ c.mpts }}"/>{% endif %}
+    {% if c.base %}<polyline class="base" points="{{ c.base }}"/>{% endif %}
+  </svg>
+  {% comment %}**표는 하나다.** 둘로 나눠 양 끝에 붙였더니 좁은 칸에서 겹쳤다 —
+  틀 가로/세로가 0.56~3.27 로 널뛰어 칸 너비가 제각각이다. 자세한 수는 제목에
+  둔다: 격자에서 눈에 걸려야 하는 것은 **담김 하나**다{% endcomment %}
+  {% if c.got %}<span class="hold{% if c.low %} bad{% endif %}" title="담김 = 우리 마스크가 남의 몸통 폴리곤에 든 몫 (IoU 가 아니라 울타리 검사다) · seg 확신 {{ c.conf }} · 마스크가 크롭에서 차지한 몫 {{ c.area_frac }} · seg 가 낸 것 {{ c.n_found }}개">담김 {{ c.hold }}{% if not c.base %} · 밑동✕{% endif %}</span>
+  {% elif c.run %}<span class="hold bad" title="이 판에서 마스크를 하나도 못 냈다">마스크 없음</span>{% endif %}
 </div>

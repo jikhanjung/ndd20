@@ -34,3 +34,6 @@ NDD20_DIR = Path(os.environ.get("NDD20_DIR", _labels.DEFAULT_DIR))
 # **미리보기는 저장소 밖에 쌓는다** — 파생물이고 언제든 다시 만든다
 THUMB_DIR = Path(os.environ.get("NDD_THUMBS", BASE_DIR / "out" / "thumbs"))
 THUMB_W = 480
+# **잰 판이 쌓이는 자리.** 화면은 여기 있는 것을 얹기만 한다 — 화면이
+# 다시 재지 않는다. 성적은 화면이 아니라 명령이 떨군 파일이다(`CLAUDE.md`).
+FINS_DIR = Path(os.environ.get("NDD_FINS", BASE_DIR / "out" / "fins"))
