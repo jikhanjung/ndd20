@@ -1,0 +1,7 @@
+{% comment %}격자 한 칸 — 지느러미 하나. 좌표는 자를 틀 기준 0~1 이다{% endcomment %}
+<div class="fin{% if c.gap > 0.1 %} open{% endif %}">
+  <span class="tag {% if c.labelled %}id{% else %}no{% endif %}">{% if c.labelled %}<a href="/ind/{{ c.ind }}?set={{ kind }}">{{ c.ind }}</a>{% else %}{{ c.species|default:"—" }}{% endif %}</span>
+  {% if c.gap > 0.1 %}<span class="gap" title="첫점과 끝점이 벌어져 있다 — 채우면 없는 직선이 들어간다">틈 {{ c.gap }}</span>{% endif %}
+  <img src="/img/{{ kind }}/{{ c.key }}" loading="lazy" alt="{{ c.image }}">
+  <svg viewBox="0 0 1 1" preserveAspectRatio="none"><polyline points="{{ c.pts }}"/></svg>
+</div>

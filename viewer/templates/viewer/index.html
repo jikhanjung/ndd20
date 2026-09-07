@@ -1,0 +1,32 @@
+{% extends "viewer/_base.html" %}
+{% block title %}NDD20 — {{ kind }}{% endblock %}
+{% block head %}
+<form method="get" style="display:flex; gap:8px; align-items:center">
+  <select name="set" onchange="this.form.submit()">
+    {% for s in sets %}<option value="{{ s }}" {% if s == kind %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>
+  <select name="only" onchange="this.form.submit()">
+    <option value="" {% if not only %}selected{% endif %}>전부</option>
+    <option value="id" {% if only == "id" %}selected{% endif %}>개체 ID 있는 것</option>
+    <option value="noid" {% if only == "noid" %}selected{% endif %}>없는 것</option>
+    <option value="open" {% if only == "open" %}selected{% endif %}>안 닫힌 것 (틈&gt;0.1)</option>
+  </select>
+  {% if all_species %}
+  <select name="species" onchange="this.form.submit()">
+    <option value="">종 전부</option>
+    {% for s in all_species %}<option value="{{ s }}" {% if s == species %}selected{% endif %}>{{ s }}</option>{% endfor %}
+  </select>{% endif %}
+  <input type="hidden" name="n" value="{{ per }}">
+</form>
+<span class="dim">영역 <b>{{ n_all }}</b> · 개체 ID <b>{{ n_labelled }}</b>
+  {% if n_open %}· <span style="color:var(--warn)">안 닫힘 {{ n_open }}</span>{% endif %}
+  · 개체 {{ inds|length }}</span>
+{% endblock %}
+{% block body %}
+<div id="grid">{% for c in cards %}{% include "viewer/_card.html" %}{% endfor %}</div>
+<div class="pager">
+  {% if page > 1 %}<a href="?set={{ kind }}&only={{ only }}&species={{ species }}&n={{ per }}&page={{ page|add:'-1' }}">← 앞</a>{% endif %}
+  <span class="dim">{{ page }} / {{ n_pages }} 쪽</span>
+  {% if page < n_pages %}<a href="?set={{ kind }}&only={{ only }}&species={{ species }}&n={{ per }}&page={{ page|add:'1' }}">뒤 →</a>{% endif %}
+</div>
+{% endblock %}

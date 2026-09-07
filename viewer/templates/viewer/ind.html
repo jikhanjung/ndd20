@@ -1,0 +1,12 @@
+{% extends "viewer/_base.html" %}
+{% block title %}개체 {{ ind }}{% endblock %}
+{% block head %}
+<span>개체 <b>{{ ind }}</b> · {{ kind }} · <b>{{ n }}</b>장</span>
+<span class="dim">— 같은 개체가 정말 같아 보이나, 몇 장이 거의 같은 그림(연사)인가</span>
+{% endblock %}
+{% block body %}
+<div id="grid" style="--card:260px">{% for c in cards %}{% include "viewer/_card.html" %}{% endfor %}</div>
+<div class="pager dim">개체 목록:
+  {% for i in inds %}<a href="/ind/{{ i }}?set={{ kind }}">{{ i }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}
+</div>
+{% endblock %}
