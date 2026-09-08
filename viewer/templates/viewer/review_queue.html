@@ -1,0 +1,28 @@
+{% extends "viewer/_base.html" %}
+{% block title %}NDD20 · 크롭 최종 검토{% endblock %}
+{% block body %}
+<main>
+  <h2>크롭 최종 검토</h2>
+  <p class="dim">원래 폴리라인, 모델 마스크·밑동, AI의 관찰을 비교하고 사람이 최종 판단합니다. 담김은 정확도 점수가 아닙니다.</p>
+  <form class="toolbar" method="get">
+    <label>추론 판 <select name="run">{% for r in runs %}<option value="{{ r.pk }}" {% if active_run == r.pk|stringformat:'s' %}selected{% endif %}>{{ r.name }} · #{{ r.pk }}</option>{% endfor %}</select></label>
+    <label>범위 <select name="scope"><option value="id" {% if scope == 'id' %}selected{% endif %}>개체 ID 있음</option><option value="all" {% if scope == 'all' %}selected{% endif %}>전체 영역</option></select></label>
+    <label>최종 판정 <select name="state"><option value="">전체</option>{% for value,label in decisions %}<option value="{{ value }}" {% if filters.state == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <label>AI 검토 <select name="ai"><option value="">전체</option><option value="reviewed" {% if filters.ai == 'reviewed' %}selected{% endif %}>관찰 기록 있음</option><option value="pending" {% if filters.ai == 'pending' %}selected{% endif %}>미검토</option></select></label>
+    <label>개체 <input name="ind" value="{{ filters.ind }}" size="5"></label><button>적용</button>
+  </form>
+  <p>현재 목록 {{ total }}개 · 미판정 {{ pending }}개 · AI 관찰 {{ ai_count }}개</p>
+  <div class="review-grid">
+    {% for entry in entries %}<article>
+      {% include "viewer/_card.html" with c=entry.c kind=entry.obj.kind %}
+      <div class="caption">
+        <a href="/review/{{ entry.obj.pk }}?{{ query }}"><b>{{ entry.obj.key }}</b> · 검토하기 →</a>
+        <div>{{ entry.obj.kind }} · 개체 {{ entry.obj.individual|default:'없음' }} · <span class="badge">{{ entry.obj.get_decision_display }}</span></div>
+        <div class="dim">{% if entry.obj.ai_review %}AI: {{ entry.obj.ai_review.summary }}{% else %}AI 미검토{% endif %}</div>
+        {% if entry.obj.reviewer %}<div class="dim">최종 판정자 {{ entry.obj.reviewer }} · {{ entry.obj.updated_at|date:'m/d H:i' }}</div>{% endif %}
+      </div>
+    </article>{% empty %}<p>표시할 크롭이 없습니다. 가져온 판과 필터를 확인하세요.</p>{% endfor %}
+  </div>
+  <div class="pager">{% if page.has_previous %}<a href="?{{ query }}&page={{ page.previous_page_number }}">← 이전</a>{% endif %} {{ page.number }} / {{ page.paginator.num_pages }} {% if page.has_next %}<a href="?{{ query }}&page={{ page.next_page_number }}">다음 →</a>{% endif %}</div>
+</main>
+{% endblock %}

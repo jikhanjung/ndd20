@@ -1,5 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}NDD20{% endblock %}</title>
 <style>
   :root { --bg:#0b0f14; --panel:#141b23; --line:#26303c; --ink:#e6edf3;
@@ -53,9 +54,29 @@
   .pager { padding:10px 14px; display:flex; gap:8px; align-items:center }
   .key { display:inline-flex; gap:9px; align-items:center }
   .key i { width:11px; height:3px; border-radius:2px; display:inline-block }
+  main { padding:18px; max-width:1600px; margin:auto }
+  .toolbar, .navigation { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px }
+  .review-layout { display:grid; grid-template-columns:minmax(0, 2fr) minmax(300px, 1fr); gap:18px; align-items:start }
+  .comparison { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start }
+  .comparison img { width:100%; display:block }
+  .review-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; align-items:start }
+  .review-grid .caption { padding:10px }
+  .review-grid article { border:1px solid var(--line); border-radius:8px; overflow:hidden }
+  h2 { font-size:18px; margin:0 0 12px } h3 { font-size:15px; margin:12px 0 8px }
+  textarea { width:100%; font:inherit; color:var(--ink); background:var(--bg); border:1px solid var(--line); padding:8px }
+  .judgment p { margin:10px 0 } .judgment label { display:block; margin-bottom:4px }
+  .judgment select, .judgment input:not([type=hidden]) { width:100% }
+  button { cursor:pointer; padding:8px 12px } button.primary { background:#075985 }
+  .errorlist { color:var(--bad) } .badge { color:var(--warn) }
+  pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:12px }
+  .saved { color:var(--ok) } .review-layout aside .panel { margin-bottom:16px }
+  @media(max-width:900px) { .review-layout { grid-template-columns:1fr } }
+  @media(max-width:560px) { .comparison { grid-template-columns:1fr } }
 </style>
 <header>
   <h1><a href="/">NDD20</a></h1>
+  <a href="/">최종 검토</a><a href="/browse">자료 탐색</a>
   {% block head %}{% endblock %}
   <span style="flex:1"></span>
   <span class="key dim">

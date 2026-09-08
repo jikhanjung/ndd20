@@ -4,3 +4,5 @@ __pycache__/
 out/
 data/
 *.npz
+*.sqlite3
+*.sqlite3-*

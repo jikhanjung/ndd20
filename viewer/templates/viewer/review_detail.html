@@ -1,0 +1,44 @@
+{% extends "viewer/_base.html" %}
+{% block title %}{{ obj.key }} · 최종 검토{% endblock %}
+{% block body %}
+<main>
+  <nav class="navigation"><a href="/?{{ query }}">← 목록</a>{% if previous %}<a href="/review/{{ previous.pk }}?{{ query }}">이전 크롭</a>{% endif %}{% if following %}<a href="/review/{{ following.pk }}?{{ query }}">다음 크롭 →</a>{% endif %}</nav>
+  <h2>{{ obj.key }} · {{ obj.kind }} · 개체 {{ obj.individual|default:'없음' }}</h2>
+  <p class="dim">추론 판 {{ obj.run.name }} · #{{ obj.run_id }} · 원영상과 오버레이는 같은 크롭입니다. 상단에서 각 선을 켜고 끌 수 있습니다.</p>
+  <div class="review-layout">
+    <section>
+      <div class="comparison">
+        <div><h3>크롭 원영상</h3><img src="/review/{{ obj.pk }}/image" alt="크롭 원영상"></div>
+        <div><h3>폴리라인 · 마스크 · 밑동</h3>{% include "viewer/_card.html" with kind=obj.kind %}</div>
+      </div>
+      <p><a href="/review/{{ obj.pk }}/image?full=1" target="_blank" rel="noopener">원본 전체 보기 ↗</a></p>
+      <div class="panel">
+        <h3>추론 정보</h3>
+        <p>담김 {{ obj.prediction.hold|default_if_none:'—' }} · 확신도 {{ obj.prediction.conf|default_if_none:'—' }} · 크롭 내 마스크 면적비 {{ obj.prediction.area_frac|default_if_none:'—' }} · 윤곽 틈 {{ obj.prediction.gap }}</p>
+        {% if not obj.prediction.poly %}<p class="badge">이 추론 결과에는 마스크 윤곽 좌표가 없습니다. 마스크 모양은 검토할 수 없습니다.</p>{% endif %}
+        {% if not obj.prediction.base %}<p class="badge">모델이 밑동 두 점을 기록하지 않았습니다.</p>{% endif %}
+        <p class="dim">초록은 NDD20 돌고래 윤곽, 파랑(담김이 낮으면 빨강)은 모델 마스크, 분홍은 모델 밑동입니다. 좌표 편집은 지원하지 않으며 수정할 내용은 판정에 남깁니다.</p>
+        <details><summary>저장된 원래 라벨과 추론 좌표</summary><pre>{{ obj.label }}</pre><pre>{{ obj.prediction }}</pre><p class="dim">출처 {{ obj.run.source }}<br>가져오기 식별값 {{ obj.run.sha256 }}</p></details>
+      </div>
+    </section>
+    <aside>
+      <section class="panel">
+        <h3>AI 1차 관찰</h3>
+        {% if obj.ai_review %}<p>{{ obj.ai_review.summary }}</p><p>{{ obj.ai_review.reason }}</p>
+        <p class="dim">{{ obj.ai_review.reviewer }} · {{ obj.ai_review.date }}<br>검토 범위: {{ obj.ai_review.scope }}<br>불확실성: {{ obj.ai_review.uncertainty }}</p>
+        {% else %}<p class="dim">미검토 — AI가 아직 이 크롭을 직접 확인하지 않았습니다.</p>{% endif %}
+      </section>
+      <section class="panel judgment">
+        <h3>사람의 최종 판정</h3>
+        {% if obj.version %}<p class="saved">저장된 판정: {{ obj.get_decision_display }} · {{ obj.reviewer }} · {{ obj.updated_at|date:'Y-m-d H:i' }} ({{ obj.version }}차)</p>{% else %}<p class="dim">아직 저장된 판정이 없습니다.</p>{% endif %}
+        <form method="post">{% csrf_token %}{{ form.as_p }}
+          <button class="primary" name="action" value="save">판정 저장</button>
+          <button name="action" value="next">저장 후 다음</button>
+        </form>
+        <p class="dim">판정자는 직접 입력하는 기록 이름입니다. 저장할 때마다 판정 이력이 남습니다.</p>
+      </section>
+      <section class="panel"><h3>판정 이력</h3>{% for h in history %}<details><summary>{{ h.version }}차 · {{ h.created_at|date:'m/d H:i' }} · {{ h.judgment.reviewer }}</summary><pre>{{ h.judgment }}</pre></details>{% empty %}<p class="dim">아직 없습니다.</p>{% endfor %}</section>
+    </aside>
+  </div>
+</main>
+{% endblock %}

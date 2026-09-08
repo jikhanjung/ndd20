@@ -1,28 +1,23 @@
-"""**있는 것만 켠다.** 이 화면은 남의 자료를 보기만 하므로 DB 도 로그인도
-세션도 필요 없다 — 켜 두면 없어도 될 자리(`db.sqlite3`)가 생기고, 그것이
-있으면 언젠가 무언가가 그리로 쓴다.
-
-형제 저장소(`dolfinserver2`)의 `finweb/settings.py` 를 본떴으되, **판정을 담는
-장치는 통째로 뺐다.** 담을 판정이 아직 없기 때문이다 (`CLAUDE.md` 의
-`받을 것이 있나 없나`).
-"""
+"""자료 탐색 및 DB 기반 크롭 최종 검토. 사람의 판정은 독립 SQLite에 보존한다."""
 import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 SECRET_KEY = os.environ.get("NDD_SECRET", "ndd20-보기전용-비밀아님")
 DEBUG = os.environ.get("NDD_DEBUG", "1") == "1"
 ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = ["django.contrib.staticfiles", "viewer"]
-MIDDLEWARE = ["django.middleware.common.CommonMiddleware"]
+MIDDLEWARE = ["django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware"]
 ROOT_URLCONF = "nddweb.urls"
 TEMPLATES = [{
     "BACKEND": "django.template.backends.django.DjangoTemplates",
     "DIRS": [], "APP_DIRS": True, "OPTIONS": {"context_processors": []},
 }]
 WSGI_APPLICATION = "nddweb.wsgi.application"
-DATABASES = {}                       # **DB 를 안 쓴다**
+DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3",
+                         "NAME": os.environ.get("NDD_DB", BASE_DIR / "review.sqlite3")}}
 STATIC_URL = "static/"
 USE_TZ = True
 TIME_ZONE = "Asia/Seoul"

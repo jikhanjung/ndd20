@@ -3,7 +3,7 @@
 <div class="fin{% if c.gap > 0.1 %} open{% endif %}{% if c.low %} low{% endif %}{% if c.run and not c.got %} nomask{% endif %}">
   <span class="tag {% if c.labelled %}id{% else %}no{% endif %}">{% if c.labelled %}<a href="/ind/{{ c.ind }}?set={{ kind }}{% if run %}&run={{ run }}{% endif %}">{{ c.ind }}</a>{% else %}{{ c.species|default:"—" }}{% endif %}</span>
   {% if c.gap > 0.1 %}<span class="gap" title="첫점과 끝점이 벌어져 있다 — 채우면 없는 직선이 들어간다">틈 {{ c.gap }}</span>{% endif %}
-  <img src="/img/{{ kind }}/{{ c.key }}" loading="lazy" alt="{{ c.image }}">
+  <img src="{% if c.image_url %}{{ c.image_url }}{% else %}/img/{{ kind }}/{{ c.key }}{% endif %}" loading="lazy" alt="{{ c.image }}">
   <svg viewBox="0 0 1 1" preserveAspectRatio="none">
     <polyline class="fence" points="{{ c.pts }}"/>
     {% if c.mpts %}<polygon class="mask" points="{{ c.mpts }}"/>{% endif %}

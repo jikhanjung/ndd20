@@ -1,5 +1,27 @@
 # ndd20
 
+## 크롭 최종 검토 (2026-09-08)
+
+이제 `/`는 **DB 기반 최종 검토 화면**이다. 기존 자료 탐색은 `/browse`에 있다.
+아래의 이전 보기 전용 설명 중 "DB를 쓰지 않는다"는 현재 검토 화면에는 적용되지 않는다.
+
+```bash
+~/venv/ndd20/bin/python manage.py migrate
+~/venv/ndd20/bin/python manage.py import_reviews /nas/JikhanJung/DolFinID/ndd20/runs/20260907-gpu/ABOVE-pad1.0.jsonl --ai docs/ai_review_initial.json
+~/venv/ndd20/bin/python manage.py runserver 0.0.0.0:8901
+```
+
+- 목록은 기본으로 개체 ID가 있는 424개를 보여 준다. 전체 2,939개도 선택 가능하다.
+- 크롭 원영상과 오버레이를 나란히 보고 각 윤곽을 독립적으로 켜고 끈다.
+- AI가 실제 본 6개만 관찰 기록이 있다. 나머지는 미검토다. 이 6개도 원영상만 본 잠정 판단이다.
+- 사람이 원영상·마스크·밑동 상태, 최종 판정, 판정자, 근거를 저장한다. 판정 이력과 동시 수정 충돌 검사가 있다.
+- 라벨·추론 전체 JSON과 출처, AI 관찰, 사람 판정은 `review.sqlite3`에 저장한다. `NDD_DB`로 위치를 지정할 수 있다. DB는 Git에 포함하지 않으므로 별도 백업해야 한다.
+- 같은 파일·라벨을 다시 가져와도 판정은 보존된다. 다른 추론/라벨은 새 판으로 들어온다.
+- 이미지는 NAS에서 읽는다. 검토 화면은 DB의 추론 결과를 사용하므로 `NDD_FINS` 설정은 필요 없다.
+- 판정자는 입력 이름이며 로그인 인증은 아직 없다. 마스크·밑동 좌표 편집은 하지 않고 수정 필요 여부와 내용을 기록한다.
+
+검증: `~/venv/ndd20/bin/python manage.py test tests`
+
 공개 자료 **NDD20**(Northumberland Dolphin Dataset 2020) 위에서, 형제 저장소
 [`dolfinserver2`](../dolfinserver2) 가 세운 **방법이 건너가는지**를 재는 자리.
 
