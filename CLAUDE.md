@@ -1,5 +1,9 @@
 # ndd20
 
+## 공통 가이드 (`.guides`)
+공통 웹 배포·데이터 안전·운영 규약은 `.guides/web/README.md`, 브랜드 규약은 `.guides/branding.md`. `.guides`는 `../devdocs/guides`를 가리키는 로컬 상대 심볼릭 링크다(`.gitignore` 처리).
+없거나 끊어져 있으면 형제 devdocs 체크아웃이 없는 것 — devdocs는 private이고 이 저장소는 public이므로 가이드를 여기에 **커밋하지 않는다.**
+
 > **2026-09-08 사용자 결정이 아래 이전 규칙보다 우선한다.** 크롭 최종 판정과
 > 관련 정보를 모두 DB에 기록하도록 명시적으로 요청했다. 독립 SQLite 및 판정
 > 이력을 사용하며, localStorage 단계는 건너뛴다. `/`는 최종 검토, `/browse`는
